@@ -78,10 +78,8 @@ namespace {
 //
 // Finds the truncation offset in a serialization of Client Hello as defined in
 // RFC 8446 4.2.11.2 used for the calculation of PSK binder MACs.
-size_t find_client_hello_truncation_mark(std::vector<uint8_t> client_hello)
+size_t find_client_hello_truncation_mark(std::span<const uint8_t> client_hello)
    {
-   // TODO: C++20: it would be great if TLS_Data_Reader could optionally deal
-   //       with std::span. This would have saved one allocation of std::vector.
    TLS_Data_Reader reader("Client Hello Truncation", client_hello);
 
    // handshake message type
@@ -156,8 +154,10 @@ std::vector<uint8_t> read_hash_state(std::unique_ptr<HashFunction>& hash)
 
 }  // namespace
 
-void Transcript_Hash_State::update(const uint8_t* serialized_message, const size_t serialized_message_length)
+void Transcript_Hash_State::update(std::span<const uint8_t> serialized_message_s)
    {
+   auto serialized_message = serialized_message_s.data();
+   auto serialized_message_length = serialized_message_s.size();
    if(m_hash != nullptr)
       {
       auto truncation_mark = serialized_message_length;
@@ -167,8 +167,7 @@ void Transcript_Hash_State::update(const uint8_t* serialized_message, const size
       if(serialized_message_length > 0 && *serialized_message == CLIENT_HELLO)
          {
          truncation_mark =
-            find_client_hello_truncation_mark({serialized_message,
-                                               serialized_message + serialized_message_length});
+            find_client_hello_truncation_mark(serialized_message_s);
          }
 
       if(truncation_mark < serialized_message_length)
