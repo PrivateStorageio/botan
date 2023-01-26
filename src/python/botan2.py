@@ -19,7 +19,7 @@ Botan 2.8
 """
 
 from ctypes import CDLL, POINTER, byref, create_string_buffer, \
-    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p
+    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer
 
 from sys import platform
 from time import strptime, mktime, time as system_time
@@ -1829,3 +1829,44 @@ def srp6_client_agree(username, password, group, hsh, salt, b, rng):
                                                                     rng.handle_(),
                                                                     a, al,
                                                                     k, kl))
+
+def zfec_encode(k, n, input_bytes):
+    """
+    ZFEC-encode an input message according to the given parameters
+
+    :param int k: the number of shares required to recover the original
+    :param int n: the total number of shares
+    :param bytes input_bytes: the input message, in bytes
+
+    :returns: n arrays of bytes, each one containing a single share
+    """
+    # create outputs arrays
+    input_size = int(len(input_bytes))
+    if input_size % n:
+        raise ValueError(
+            "input_bytes must be a multiple of n"
+        )
+    outsize = int(input_size / k)
+    p_bytes = c_uint8 * outsize
+    p_p_bytes = p_bytes * k
+    contig_output = bytearray(outsize * n)
+
+    outputs = [
+        memoryview(contig_output[(a * outsize) : ((a + 1) * outsize)])
+        for a in range(n)
+    ]
+    c_outputs = [
+        p_bytes.from_buffer(output)
+        for output in outputs
+    ]
+    print(c_outputs)
+
+    x = _DLL.botan_zfec_encode(
+        c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), p_p_bytes.from_buffer(contig_output)
+    )
+    print(x)
+    return x
+
+
+def zfec_decode():
+    pass

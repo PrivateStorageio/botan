@@ -742,6 +742,20 @@ ofvkP1EDmpx50fHLawIDAQAB
         except botan2.BotanException as e:
             self.assertEqual(str(e), "botan_srp6_server_session_step2 failed: -32 (Bad parameter)")
 
+class BotanPythonZfecTests(unittest.TestCase):
+
+    def test_encode_decode(self):
+        """
+        Simple round-trip test.
+
+        Could benefit from more variations
+        """
+        n = 5
+        k = 2
+        input_bytes = b"beef\n" * 100
+        botan2.zfec_encode(k, n, input_bytes)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--test-data-dir', default='.')
