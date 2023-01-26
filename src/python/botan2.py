@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3ct
 
 """
 Python wrapper of the botan crypto library
@@ -19,7 +19,7 @@ Botan 2.8
 """
 
 from ctypes import CDLL, POINTER, byref, create_string_buffer, \
-    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer, cast, Structure
+    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer, cast, Structure, addressof
 
 from sys import platform
 from time import strptime, mktime, time as system_time
@@ -1851,17 +1851,20 @@ def zfec_encode(k, n, input_bytes):
     p_p_bytes = p_bytes * n
 
     outputs = [
-        bytearray(outsize)
+        bytearray(b"\x6e" * outsize)
         for a in range(n)
     ]
 
     c_outputs = p_p_bytes(*[
-        p_bytes.from_buffer(memoryview(output))
+        p_bytes.from_buffer(output)
         for output in outputs
     ])
 
     # in C++, outputs is non-null, but outputs[0] is 0x0
-
+    print("outsize", outsize)
+    print(hex(addressof(c_outputs)))
+    print(hex(addressof(c_outputs[0])))
+    print(hex(addressof(c_outputs[1])))
     x = _DLL.botan_zfec_encode(
         c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), c_outputs
     )
