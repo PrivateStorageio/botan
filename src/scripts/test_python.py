@@ -750,9 +750,9 @@ class BotanPythonZfecTests(unittest.TestCase):
 
         Could benefit from more variations
         """
-        n = 5
+        n = 8
         k = 2
-        input_bytes = b"beef\n" * 100
+        input_bytes = b"beef" * 128
         botan2.zfec_encode(k, n, input_bytes)
 
 
