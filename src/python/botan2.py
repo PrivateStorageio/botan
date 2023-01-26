@@ -1861,6 +1861,9 @@ def zfec_encode(k, n, input_bytes):
     ]
     print(c_outputs)
 
+    # XXX okay, this didn't work, outputs[0] is 0 in gdb inside the
+    # ffi call
+
     x = _DLL.botan_zfec_encode(
         c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), p_p_bytes.from_buffer(contig_output)
     )
