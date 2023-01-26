@@ -1891,6 +1891,9 @@ def zfec_encode(k, n, input_bytes):
         raise RuntimeError(
             "Unexpected error, code={}".format(x)
         )
+
+    for output in outputs:
+        print(output)
     return x
 
 

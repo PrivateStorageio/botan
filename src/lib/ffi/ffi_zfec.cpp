@@ -19,6 +19,12 @@ extern "C" {
     return Botan_FFI::ffi_guard_thunk(__func__, [=]() -> int {
       Botan::ZFEC(K, N).encode(input, size, [=](size_t index, const uint8_t block[], size_t blockSize) -> void {
 	  std::copy(block, block + blockSize, outputs[index]);
+          printf("outputs %p index %lu %p\n", o, index, (void*)outputs[index]);
+          printf("block %p blocksize %lu\n", (const void*)block, blockSize);
+          for (size_t i=0; i < blockSize; ++i) {
+              printf("%d ", block[i]);
+          }
+          printf("\n");
 	});
       return BOTAN_FFI_SUCCESS;
     });
@@ -36,8 +42,8 @@ extern "C" {
       }
       Botan::ZFEC(K, N).decode_shares(shares, shareSize, [=](size_t index, const uint8_t block[], size_t blockSize) -> void {
 	  std::copy(block, block + blockSize, outputs[index]);
-	});
-      return BOTAN_FFI_SUCCESS;
+	}); 
+     return BOTAN_FFI_SUCCESS;
     });
 #else
     return BOTAN_FFI_ERROR_NOT_IMPLEMENTED;
