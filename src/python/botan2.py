@@ -19,7 +19,7 @@ Botan 2.8
 """
 
 from ctypes import CDLL, POINTER, byref, create_string_buffer, \
-    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer
+    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer, cast, Structure
 
 from sys import platform
 from time import strptime, mktime, time as system_time
@@ -1841,36 +1841,31 @@ def zfec_encode(k, n, input_bytes):
     :returns: n arrays of bytes, each one containing a single share
     """
     # create outputs arrays
-    input_size = int(len(input_bytes))
+    input_size = len(input_bytes)
     if input_size % k:
         raise ValueError(
             "input_bytes must be a multiple of k"
         )
     outsize = int(input_size / k)
     p_bytes = c_uint8 * outsize
-    p_p_bytes = p_bytes * k
-    contig_output = bytearray(outsize * n)
+    p_p_bytes = p_bytes * n
 
     outputs = [
-        memoryview(contig_output[(a * outsize) : ((a + 1) * outsize)])
+        bytearray(outsize)
         for a in range(n)
     ]
-    c_outputs = [
-        p_bytes.from_buffer(output)
-        for output in outputs
-    ]
-    print(c_outputs)
 
-    # XXX okay, this didn't work, outputs[0] is 0 in gdb inside the
-    # ffi call
+    c_outputs = p_p_bytes(*[
+        p_bytes.from_buffer(memoryview(output))
+        for output in outputs
+    ])
+
+    # in C++, outputs is non-null, but outputs[0] is 0x0
 
     x = _DLL.botan_zfec_encode(
-        c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), p_p_bytes.from_buffer(contig_output)
+        c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), c_outputs
     )
-    print(x)
-    print(contig_output)
-    print(outputs[0].tobytes())
-    if False and x != 0:
+    if x != 0:
         raise RuntimeError(
             "Unexpected error, code={}".format(x)
         )
