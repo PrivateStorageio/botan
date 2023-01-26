@@ -1892,8 +1892,15 @@ def zfec_encode(k, n, input_bytes):
             "Unexpected error, code={}".format(x)
         )
 
+    # waaaat??! this prints original contentsn
     for output in outputs:
         print(output)
+
+    # ...but THIS prints the correct copied outputs / etc
+    for i in range(n):
+        for j in range(outsize):
+            print("{} ".format(c_outputs[i][j]), end="")
+        print()
     return x
 
 
