@@ -750,12 +750,11 @@ class BotanPythonZfecTests(unittest.TestCase):
 
         Could benefit from more variations
         """
-        # Whaaaa? some combos do work; why does 73 (size of share)
-        # work??
-        n = 8
-        k = 7
+        n = 2
+        k = 1
         input_bytes = b"beef" * 128
-        botan2.zfec_encode(k, n, input_bytes)
+        output_shares = botan2.zfec_encode(k, n, input_bytes)
+        print(output_shares)
 
 
 def main():

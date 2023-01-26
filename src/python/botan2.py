@@ -1842,9 +1842,9 @@ def zfec_encode(k, n, input_bytes):
     """
     # create outputs arrays
     input_size = int(len(input_bytes))
-    if input_size % n:
+    if input_size % k:
         raise ValueError(
-            "input_bytes must be a multiple of n"
+            "input_bytes must be a multiple of k"
         )
     outsize = int(input_size / k)
     p_bytes = c_uint8 * outsize
@@ -1865,6 +1865,12 @@ def zfec_encode(k, n, input_bytes):
         c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), p_p_bytes.from_buffer(contig_output)
     )
     print(x)
+    print(contig_output)
+    print(outputs[0].tobytes())
+    if False and x != 0:
+        raise RuntimeError(
+            "Unexpected error, code={}".format(x)
+        )
     return x
 
 
