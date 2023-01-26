@@ -19,7 +19,7 @@ Botan 2.8
 """
 
 from ctypes import CDLL, POINTER, byref, create_string_buffer, \
-    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer, cast, Structure, addressof, sizeof
+    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer, cast, Structure, addressof, sizeof, c_void_p
 
 from sys import platform
 from time import strptime, mktime, time as system_time
@@ -1882,8 +1882,10 @@ def zfec_encode(k, n, input_bytes):
     for i in range(n):
         print(i, hex(addressof(c_outputs[i])))
 
+    ppp = c_void_p(addressof(outs))
+
     x = _DLL.botan_zfec_encode(
-        c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), outs
+        c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), ppp
     )
     if x != 0:
         raise RuntimeError(
