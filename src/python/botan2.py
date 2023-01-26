@@ -19,7 +19,7 @@ Botan 2.8
 """
 
 from ctypes import CDLL, POINTER, byref, create_string_buffer, \
-    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer, cast, Structure, addressof
+    c_void_p, c_size_t, c_uint8, c_uint32, c_uint64, c_int, c_uint, c_char_p, Array, pointer, cast, Structure, addressof, sizeof
 
 from sys import platform
 from time import strptime, mktime, time as system_time
@@ -1850,8 +1850,10 @@ def zfec_encode(k, n, input_bytes):
     p_bytes = c_uint8 * outsize
     p_p_bytes = p_bytes * n
 
+    print("input size", input_size, "outsize", outsize)
+
     outputs = [
-        bytearray(b"\x6e" * outsize)
+        bytearray(str(a)[:1].encode("utf8") * outsize)
         for a in range(n)
     ]
 
@@ -1860,13 +1862,28 @@ def zfec_encode(k, n, input_bytes):
         for output in outputs
     ])
 
+    # ye gods, I hope this doesn't work
+    #
+    # idea is to pack the pointers into the array...to pass to C++
+    #pointers = bytearray(sizeof(POINTER(c_uint8)) * n)
+    pointers = b""
+    import struct
+    for i in range(n):
+        pointers += struct.pack("@P", addressof(c_outputs[i]))
+    print("pointers", n, struct.calcsize("@P"), len(pointers), pointers)
+    pointers_w = bytearray(pointers)
+    ppb = POINTER(POINTER(c_uint8))
+    outs = ppb.from_buffer(pointers_w)
+    print(outs)
+    print("outs addr", hex(addressof(outs)))
+
     # in C++, outputs is non-null, but outputs[0] is 0x0
     print("outsize", outsize)
-    print(hex(addressof(c_outputs)))
-    print(hex(addressof(c_outputs[0])))
-    print(hex(addressof(c_outputs[1])))
+    for i in range(n):
+        print(i, hex(addressof(c_outputs[i])))
+
     x = _DLL.botan_zfec_encode(
-        c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), c_outputs
+        c_size_t(k), c_size_t(n), input_bytes, c_size_t(input_size), outs
     )
     if x != 0:
         raise RuntimeError(
