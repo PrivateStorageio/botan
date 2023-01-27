@@ -12,15 +12,11 @@
 #endif
 
 extern "C" {
-  int botan_zfec_encode(size_t K, size_t N, const uint8_t *input, size_t size, void* o) {
+  int botan_zfec_encode(size_t K, size_t N, const uint8_t *input, size_t size, uint8_t** outputs) {
 #if defined(BOTAN_HAS_ZFEC)
-      //uint8_t** outputs = std::reinterpret_cast<uint8_t**>(o);
-    uint8_t** outputs = (uint8_t**)o;
     return Botan_FFI::ffi_guard_thunk(__func__, [=]() -> int {
       Botan::ZFEC(K, N).encode(input, size, [=](size_t index, const uint8_t block[], size_t blockSize) -> void {
 	  std::copy(block, block + blockSize, outputs[index]);
-          printf("outputs %p index %lu %p\n", o, index, (void*)outputs[index]);
-          printf("block %p blocksize %lu\n", (const void*)block, blockSize);
           for (size_t i=0; i < blockSize; ++i) {
               printf("%d ", block[i]);
           }

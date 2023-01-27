@@ -1900,8 +1900,7 @@ int botan_srp6_client_agree(const char *username, const char *password,
  * @return 0 on success, negative on failure
  */
 BOTAN_PUBLIC_API(3, 0)
-int botan_zfec_encode(size_t K, size_t N, const uint8_t *input, size_t size, void*outputs);
-//int botan_zfec_encode(size_t K, size_t N, const uint8_t *input, size_t size, uint8_t **outputs);
+int botan_zfec_encode(size_t K, size_t N, const uint8_t *input, size_t size, uint8_t **outputs);
 
 /**
  * Decode some previously encoded shares using certain ZFEC parameters.
