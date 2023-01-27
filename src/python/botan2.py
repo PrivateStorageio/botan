@@ -1852,11 +1852,13 @@ def zfec_encode(k, n, input_bytes):
 
     print("input size", input_size, "outsize", outsize)
 
+    # putting some sentinal values in here to facilitate debugging
     outputs = [
         bytearray(str(a)[:1].encode("utf8") * outsize)
         for a in range(n)
     ]
 
+    # these _should_ be merely pointers into the above bytearrays .. but see end!
     c_outputs = p_p_bytes(*[
         p_bytes.from_buffer(output)
         for output in outputs
@@ -1892,7 +1894,7 @@ def zfec_encode(k, n, input_bytes):
             "Unexpected error, code={}".format(x)
         )
 
-    # waaaat??! this prints original contentsn
+    # waaaat??! this prints original contents
     for output in outputs:
         print(output)
 
