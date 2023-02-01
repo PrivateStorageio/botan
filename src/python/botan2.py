@@ -1894,11 +1894,14 @@ def zfec_encode(k, n, input_bytes):
             "Unexpected error, code={}".format(x)
         )
 
-    # waaaat??! this prints original contents
+    # waaaat??! this prints original contents (e.g. bytearrays of
+    # 11111111, 222222, etc)
     for output in outputs:
         print(output)
 
-    # ...but THIS prints the correct copied outputs / etc
+    # ...but THIS prints the correct copied outputs from the zfec
+    # encoding / etc (e.g. 97 101 101 102 98 ...)
+    # (but _where_ does this memory live?)
     for i in range(n):
         for j in range(outsize):
             print("{} ".format(c_outputs[i][j]), end="")
